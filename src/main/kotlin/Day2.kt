@@ -25,7 +25,7 @@ data class CubeSet(val red: Int, val green: Int, val blue: Int) {
     }
 }
 
-private data class Game(val id: Int, val cubeSet: List<CubeSet>) {
+data class Game(val id: Int, val cubeSet: List<CubeSet>) {
     fun isPossible(): Boolean =
         cubeSet.all { it.red <= RED && it.green <= GREEN && it.blue <= BLUE }
 
@@ -52,17 +52,18 @@ private data class Game(val id: Int, val cubeSet: List<CubeSet>) {
     }
 }
 
-fun part1(input: List<String>): Int {
-    return input.map { Game.parse(it.trim()) }.filter { it.isPossible() }
-        .sumOf { it.id }
-}
-
-fun part2(input: List<String>): Int {
-    return input.map { Game.parse(it.trim()) }.sumOf { it.minCubes() }
-}
-
 fun main() {
+    fun part1(input: List<String>): Int {
+        return input.map { Game.parse(it.trim()) }
+            .filter { it.isPossible() }
+            .sumOf { it.id }
+    }
+
+    fun part2(input: List<String>): Int {
+        return input.map { Game.parse(it.trim()) }.sumOf { it.minCubes() }
+    }
+
     val lines = readInput("day2")
-    println(part1(lines))
-    println(part2(lines))
+    println("Part 1: ${part1(lines)}")
+    println("Part 2: ${part2(lines)}")
 }
