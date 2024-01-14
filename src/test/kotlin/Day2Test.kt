@@ -16,7 +16,8 @@ class CubeSetTest {
     fun testParseInvalidString() {
         val invalidString = "red 1, green 2, blue 3"
         assertFailsWith<Exception>(message = "Could not parse color", block = {
-            val shouldNotBeCreated = CubeSet.parse(invalidString)
+            @Suppress("UNUSED_VARIABLE") val shouldNotBeCreated =
+                CubeSet.parse(invalidString)
         })
     }
 }
