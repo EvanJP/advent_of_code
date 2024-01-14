@@ -2,10 +2,8 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
 class Day3Test {
-
-    @Test
-    fun testGetPartNumbers() {
-        val testGrid = listOf(
+    private val schematic = Schematic(
+        listOf(
             "467..114..",
             "...*......",
             "..35..633.",
@@ -17,9 +15,17 @@ class Day3Test {
             "...$.*....",
             ".664.598.."
         )
-        val schematic = Schematic(testGrid)
-        println(schematic.getPartNumbers().sum())
+    )
+
+    @Test
+    fun testGetPartNumbers() {
         val expected = listOf(467, 35, 633, 617, 592, 755, 664, 598)
         assertContentEquals(expected, schematic.getPartNumbers())
+    }
+
+    @Test
+    fun testGetGearRatios() {
+        val expected = listOf(16345, 451490)
+        assertContentEquals(expected, schematic.getGearRatios())
     }
 }

@@ -45,15 +45,3 @@ class GameTest {
         assertEquals(2 * 4 * 7, game.minCubes())
     }
 }
-
-class Day2KtTest {
-
-    @Test
-    fun part1() {
-    }
-
-    @Test
-    fun part2() {
-    }
-}
-
