@@ -1,5 +1,7 @@
 import kotlin.properties.Delegates
 import kotlin.collections.HashMap
+import kotlin.math.max
+import kotlin.math.min
 
 data class SourceDestinationRangeMap(
     val sourceName: String, val destinationName: String
@@ -19,7 +21,7 @@ data class SourceDestinationRangeMap(
         }
     }
 
-    private var ranges = mutableListOf<SourceDestinationRange>()
+    var ranges = mutableListOf<SourceDestinationRange>()
     private val rangesSorted: List<SourceDestinationRange> by lazy {
         ranges.sortedBy { it.source }
     }
@@ -42,14 +44,24 @@ data class SourceDestinationRangeMap(
     }
 }
 
-class Almanac {
+class Almanac(val seedsAreRanges: Boolean = false) {
     private var seeds: List<Long> by Delegates.notNull()
+    private var seedsRanges: List<LongRange> by Delegates.notNull()
     private var currentRangeMap: SourceDestinationRangeMap by Delegates.notNull()
 
     private var rangeMaps = HashMap<String, SourceDestinationRangeMap>()
 
     private fun parseSeeds(line: String) {
-        seeds = line.substringAfter(":").trim().split(" ").map { it.toLong() }
+        if (seedsAreRanges) {
+            seedsRanges =
+                line.substringAfter(":").trim().split(" ").chunked(2) {
+                    val (start, length) = it.map { s -> s.toLong() }
+                    LongRange(start, start + length - 1)
+                }
+        } else {
+            seeds =
+                line.substringAfter(":").trim().split(" ").map { it.toLong() }
+        }
     }
 
     private fun createNewRangeMap(line: String) {
@@ -83,13 +95,23 @@ class Almanac {
                 rangeMap = rangeMaps[rangeMap.destinationName]
             }
         } else {
-            throw Exception("Could not find rangeMap.")
+            throw Exception("Could not find seed rangeMap.")
         }
         return rangeMap.getDestination(location)
     }
 
-    val lowestLocation: Long by lazy {
-        seeds.minOf { getLocation(it) }
+    private fun getLocationOfRanges(seedRange: LongRange): Set<Long> =
+        rangeMaps["seed"]!!.ranges.filter {
+            max(it.source, seedRange.first) <= min(
+                it.source + it.length, seedRange.last
+            )
+        }.map { getLocation(it.source) }.toSet()
+
+    fun lowestLocation(): Long {
+        if (seedsAreRanges) {
+            return seedsRanges.map { getLocationOfRanges(it) }.flatten().min()
+        }
+        return seeds.minOf { getLocation(it) }
     }
 }
 
@@ -97,10 +119,18 @@ fun main() {
     fun part1(lines: List<String>): Long {
         with(Almanac()) {
             lines.forEach { parse(it) }
-            return lowestLocation
+            return lowestLocation()
+        }
+    }
+
+    fun part2(lines: List<String>): Long {
+        with(Almanac(seedsAreRanges = true)) {
+            lines.forEach { parse(it) }
+            return lowestLocation()
         }
     }
 
     val lines = readInput("Day5Input")
     println("Part 1: ${part1(lines)}")
+    println("Part 2: ${part2(lines)}")
 }
